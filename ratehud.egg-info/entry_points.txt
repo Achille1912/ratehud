@@ -1,0 +1,2 @@
+[console_scripts]
+ratehud = ratehud:main

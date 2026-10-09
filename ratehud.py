@@ -1,8 +1,8 @@
 """
-Claude Code live usage monitor.
+ratehud: live Claude plan usage HUD for the terminal.
 
 Run:
-    python claude_usage_monitor.py [--theme dracula|nord|matrix|mono]
+    ratehud [--theme dracula|nord|matrix|mono]
 
 Shows how close you are to your plan's 5h/7d usage limits, meant to live in
 a terminal split.

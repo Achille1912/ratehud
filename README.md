@@ -42,46 +42,51 @@ or sent anywhere other than `api.anthropic.com`.
 
 ## Installation
 
-### Linux / macOS
+### Option A: as a global command (recommended)
+
+This installs `ratehud` as a standalone command on your PATH, runnable from
+any directory, using [pipx](https://pipx.pypa.io/) (install pipx once with
+`python3 -m pip install --user pipx` if you don't have it).
 
 ```
-git clone <this-repo-url>
+pipx install git+https://github.com/Achille1912/ratehud.git
+```
+
+Same command on Windows, once pipx is installed.
+
+To upgrade later:
+
+```
+pipx upgrade ratehud
+```
+
+Plain `pip` works too, if you'd rather manage the PATH yourself:
+
+```
+pip install --user git+https://github.com/Achille1912/ratehud.git
+```
+
+### Option B: from source (for development)
+
+```
+git clone https://github.com/Achille1912/ratehud.git
 cd ratehud
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-```
-
-### Windows (PowerShell)
-
-```
-git clone <this-repo-url>
-cd ratehud
-python -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
+python3 -m venv .venv            # on Windows: python -m venv .venv
+.venv/bin/pip install -e .       # on Windows: .venv\Scripts\pip install -e .
 ```
 
 ## Usage
 
-Run it with the virtual environment's Python directly:
+If installed via Option A, just run:
 
 ```
-.venv/bin/python ratehud.py
+ratehud
 ```
 
-On Windows:
+from anywhere. If running from source (Option B):
 
 ```
-.venv\Scripts\python ratehud.py
-```
-
-Or activate the virtual environment once per terminal session and use `python`
-normally afterward:
-
-```
-source .venv/bin/activate        # Linux / macOS
-.venv\Scripts\activate           # Windows
-
-python ratehud.py
+.venv/bin/python ratehud.py      # on Windows: .venv\Scripts\python ratehud.py
 ```
 
 Leave it running in a split pane. It redraws itself in place, it does not
@@ -97,7 +102,7 @@ scroll your terminal. Stop it with Ctrl+C.
 Example:
 
 ```
-.venv/bin/python ratehud.py --theme matrix --limit-interval 120
+ratehud --theme matrix --limit-interval 120
 ```
 
 ## Notes and limitations

@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+ratehud.py
+ratehud.egg-info/PKG-INFO
+ratehud.egg-info/SOURCES.txt
+ratehud.egg-info/dependency_links.txt
+ratehud.egg-info/entry_points.txt
+ratehud.egg-info/requires.txt
+ratehud.egg-info/top_level.txt
