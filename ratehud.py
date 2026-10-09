@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from rich.console import Console
+from rich.console import Console, Group
 from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
@@ -132,6 +132,20 @@ def fetch_rate_limits(state: RateLimits) -> None:
     state.error = None
 
 
+# These status values aren't documented publicly; unknown ones fall back to a
+# humanized version of the raw string instead of being silently dropped.
+STATUS_HELP = {
+    "allowed_warning": "approaching the limit - slow down to avoid being blocked",
+    "rejected": "blocked until reset - requests are not going through",
+}
+
+
+def status_help(status: str | None) -> str | None:
+    if status in (None, "allowed"):
+        return None
+    return STATUS_HELP.get(status, f"status: {status.replace('_', ' ')}")
+
+
 def format_time_left(reset_ts: int | None) -> str:
     if reset_ts is None:
         return "?"
@@ -158,7 +172,7 @@ def render_limits(rl: RateLimits, theme: dict) -> Panel:
     header.add_column(justify="right")
     checked = int(time.time() - rl.checked_at) if rl.checked_at else None
     header.add_row(
-        Text(f"● {rl.status or 'unknown'}", style="bold " + overall_dot),
+        Text(f"● {(rl.status or 'unknown').replace('_', ' ')}", style="bold " + overall_dot),
         Text(f"checked {checked}s ago" if checked is not None else "", style=colors["dim"]),
     )
     body.add_row(header)
@@ -170,13 +184,12 @@ def render_limits(rl: RateLimits, theme: dict) -> Panel:
     ):
         pct = pct or 0.0
         bar_color = colors["warn"] if pct >= 0.9 else colors["accent"]
-        tag = "" if status in (None, "allowed") else f" [{colors['warn']}]{status}[/]"
         bind_mark = "  ←" if rl.binding == key else ""
 
         pct_line = Table.grid(expand=True)
         pct_line.add_column(ratio=1)
         pct_line.add_column(justify="right")
-        pct_line.add_row(Text(f"{pct:.0%} used", style="bold " + colors["primary"]), Text.from_markup(tag))
+        pct_line.add_row(Text(f"{pct:.0%} used", style="bold " + colors["primary"]), Text(""))
         body.add_row(pct_line)
 
         body.add_row(ProgressBar(
@@ -212,6 +225,17 @@ def render_limits(rl: RateLimits, theme: dict) -> Panel:
     )
 
 
+def render_help(rl: RateLimits, theme: dict) -> Text | None:
+    """Status explanations, dimmed and printed below the box rather than inside it."""
+    messages = dict.fromkeys(
+        m for m in (status_help(rl.status), status_help(rl.five_hour_status), status_help(rl.seven_day_status))
+        if m
+    )
+    if not messages:
+        return None
+    return Text("\n".join(messages), style=theme["dim"])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--theme", choices=THEMES.keys(), default="dracula")
@@ -228,7 +252,12 @@ def main() -> None:
     fetch_rate_limits(rate_limits)
     last_limit_check = time.time()
 
-    with Live(render_limits(rate_limits, theme), console=console, refresh_per_second=4, screen=False) as live:
+    def frame():
+        panel = render_limits(rate_limits, theme)
+        help_text = render_help(rate_limits, theme)
+        return Group(panel, help_text) if help_text else panel
+
+    with Live(frame(), console=console, refresh_per_second=4, screen=False) as live:
         while True:
             # The border's dash phase is derived from the wall clock, so we need to
             # re-render a few times a second for it to visibly move - not just once
@@ -239,7 +268,7 @@ def main() -> None:
                 fetch_rate_limits(rate_limits)  # blocking network call, throttled to once a minute
                 last_limit_check = time.time()
 
-            live.update(render_limits(rate_limits, theme))
+            live.update(frame())
 
 
 if __name__ == "__main__":
