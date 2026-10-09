@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="80" viewBox="0 0 288 80">
+  <rect x="0" y="0" width="288" height="80" rx="14" fill="#282a36"/>
+  <rect x="8" y="8" width="64" height="64" rx="16"
+        fill="none" stroke="#bd93f9" stroke-width="3" stroke-dasharray="4 5"/>
+  <circle cx="40" cy="40" r="20" fill="none" stroke="#6272a4" stroke-width="3"/>
+  <path d="M 40 40 L 40 22 A 18 18 0 0 1 54.7 50.2 Z" fill="#50fa7b"/>
+  <circle cx="40" cy="40" r="3.5" fill="#f8f8f2"/>
+  <text x="90" y="49" font-family="Fira Code, Consolas, monospace" font-size="30"
+        font-weight="700" fill="#f8f8f2">ratehud</text>
+</svg>

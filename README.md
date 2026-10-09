@@ -1,10 +1,15 @@
-# ratehud
+<img src="assets/logo.svg" alt="ratehud" width="288">
 
 A small terminal tool that shows how close you are to your Claude subscription's
 usage limits (the 5 hour session limit and the 7 day weekly limit), live, in a
 panel meant to sit in a terminal split while you work with Claude Code.
 
 It is cross platform (Linux, macOS, Windows) and only has one dependency: `rich`.
+
+<p>
+  <img src="assets/screenshot-dracula.svg" alt="ratehud, dracula theme" width="420">
+  <img src="assets/screenshot-matrix.svg" alt="ratehud, matrix theme" width="420">
+</p>
 
 ## What it shows
 
@@ -111,3 +116,7 @@ Example:
 ## License
 
 MIT
+
+## Note
+
+This repository was built with the help of AI tools.
