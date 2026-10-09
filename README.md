@@ -45,8 +45,47 @@ or sent anywhere other than `api.anthropic.com`.
 ### Option A: as a global command (recommended)
 
 This installs `ratehud` as a standalone command on your PATH, runnable from
-any directory, using [pipx](https://pipx.pypa.io/) (install pipx once with
-`python3 -m pip install --user pipx` if you don't have it).
+any directory, using [pipx](https://pipx.pypa.io/).
+
+#### Installing pipx
+
+**Linux (Arch)**
+
+```
+sudo pacman -S python-pipx
+pipx ensurepath
+```
+
+**Linux (Debian / Ubuntu)**
+
+```
+sudo apt install pipx
+pipx ensurepath
+```
+
+**Linux (any other distribution) / macOS**
+
+```
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+**Windows (PowerShell)**
+
+Requires Python installed from [python.org](https://www.python.org/downloads/)
+or the Microsoft Store.
+
+```
+py -m pip install --user pipx
+py -m pipx ensurepath
+```
+
+On macOS, `brew install pipx` works too if you use Homebrew.
+
+After installing pipx, close and reopen your terminal (`ensurepath` adds a
+directory to your PATH that only takes effect in new terminal sessions).
+
+#### Installing ratehud
 
 ```
 pipx install git+https://github.com/Achille1912/ratehud.git
@@ -58,6 +97,13 @@ To upgrade later:
 
 ```
 pipx upgrade ratehud
+```
+
+If that doesn't pick up a new commit (pipx occasionally doesn't notice
+updates to the same git branch), force it:
+
+```
+pipx reinstall ratehud
 ```
 
 Plain `pip` works too, if you'd rather manage the PATH yourself:

@@ -155,15 +155,20 @@ def format_time_left(reset_ts: int | None) -> str:
     return f"{hours}h{minutes:02d}m"
 
 
-def render_limits(rl: RateLimits, theme: dict) -> Panel:
+def render_limits(rl: RateLimits, theme: dict, width: int = 38) -> Panel:
+    # Sized from the live terminal width each frame (see main()) instead of a fixed
+    # constant, so a resize never asks Rich to draw a box wider than the terminal -
+    # that mismatch is what corrupts the display when a Live redraw is mid-resize.
     colors = theme
+    inner = width - 2
+    bar_width = max(10, inner - 6)
     body = Table.grid(padding=(0, 0))
-    body.add_column(width=36)
+    body.add_column(width=inner)
     phase = int(time.time() * 2)  # flips twice a second, driven purely by the wall clock
 
     if rl.error:
         body.add_row(Text(rl.error, style=colors["dim"]))
-        return Panel(body, title="[bold]plan limits[/bold]", border_style=colors["dim"], box=dashed_box(phase), width=38)
+        return Panel(body, title="[bold]plan limits[/bold]", border_style=colors["dim"], box=dashed_box(phase), width=width)
 
     overall_ok = rl.status == "allowed"
     overall_dot = colors["accent"] if overall_ok else colors["warn"]
@@ -193,7 +198,7 @@ def render_limits(rl: RateLimits, theme: dict) -> Panel:
         body.add_row(pct_line)
 
         body.add_row(ProgressBar(
-            total=1.0, completed=pct, width=30,
+            total=1.0, completed=pct, width=bar_width,
             complete_style=bar_color, finished_style=bar_color,
         ))
 
@@ -221,7 +226,7 @@ def render_limits(rl: RateLimits, theme: dict) -> Panel:
         title="[bold]plan limits[/bold]",
         border_style=overall_dot,
         box=dashed_box(phase),
-        width=38,
+        width=width,
     )
 
 
@@ -253,10 +258,12 @@ def main() -> None:
     last_limit_check = time.time()
 
     def frame():
-        panel = render_limits(rate_limits, theme)
+        width = max(24, min(38, console.size.width))
+        panel = render_limits(rate_limits, theme, width)
         help_text = render_help(rate_limits, theme)
         return Group(panel, help_text) if help_text else panel
 
+    last_size = console.size
     with Live(frame(), console=console, refresh_per_second=4, screen=False) as live:
         while True:
             # The border's dash phase is derived from the wall clock, so we need to
@@ -267,6 +274,13 @@ def main() -> None:
             if time.time() - last_limit_check >= args.limit_interval:
                 fetch_rate_limits(rate_limits)  # blocking network call, throttled to once a minute
                 last_limit_check = time.time()
+
+            if console.size != last_size:
+                # On a resize, Live's cursor math for erasing the previous frame is
+                # based on the old width - a plain update() can leave stray characters
+                # behind. Clearing once resyncs the terminal before drawing the new size.
+                console.clear()
+                last_size = console.size
 
             live.update(frame())
 
